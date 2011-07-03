@@ -32,7 +32,7 @@ snake.prototype.attachEvents = function(e) {
 	e = e || event,
 	key = e.which || e.keyCode;
 
-	if (key >= 37 && key <= 40) {
+	if (Math.abs(keyCode - key) != 2 && key >= 37 && key <= 40) {
 		keyCode = key;
 	} else {
 		return false;
@@ -90,22 +90,22 @@ snake.prototype.step = function(self) {
 	hx = head[0],
 	hy = head[1],
 	fx = foot[0],
-	fy = foot[1];
-
-	console.log(keyCode);
+	fy = foot[1],
+	row = self.row,
+	column = self.column;
 
 	switch (keyCode) {
 	case 37:
-		hx -= 1;
+		hx === 0 ? hx = column - 1: hx -= 1;
 		break;
 	case 38:
-		hy -= 1;
+		hy === 0 ? hy = row - 1: hy -= 1;
 		break;
 	case 39:
-		hx += 1;
+		hx === column-1 ? hx = 0: hx += 1;
 		break;
 	case 40:
-		hy += 1;
+		hy === row-1 ? hy = 0: hy += 1;
 		break;
 	}
 
