@@ -10,5 +10,6 @@ img, button {background:none;border:0 none;vertical-align:middle;}
 ol,ul {list-style:none;}
 table,th,td,fieldset,legend {font-weight:400;border:0 none;border-collapse:collapse}
 
-#snake {margin:0 auto;}
-    #snake td {width:20px;height:20px;border:1px solid #EEE;}
+#wrap {margin:0 auto;}
+    #wrap td {width:20px;height:20px;border:1px solid #EEE;}
+    #wrap .cover {background-color:blue;}
