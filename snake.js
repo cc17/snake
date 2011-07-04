@@ -11,6 +11,7 @@ snake.prototype.init = function(row, column, len) {
 
 	self.initGrid(row, column);
 	self.initSnake(column, len);
+	self.addObj("food");
 	self.start();
 };
 
@@ -19,7 +20,7 @@ snake.prototype.start = function() {
 	var self = this;
 	keyCode = 39;
 
-	window.onkeydown = self.attachEvents;
+	document.onkeydown = self.attachEvents;
 	setInterval(function() {
 		self.step(self);
 	},
@@ -73,10 +74,21 @@ snake.prototype.initSnake = function(column, len) {
 	for (i = 0; i < len; i++) {
 		self.body.push([x, y]);
 		self.state[x][y] = true;
-		self.grid[x][y].className = "cover";
+		self.grid[x][y].className = "snake";
 
 		x = x - 1;
 	}
+};
+
+//addObj
+snake.prototype.addObj = function(name) {
+	var self = this,
+	p = self.random(),
+	x = p[0],
+	y = p[1];
+
+	self.state[x][y] = name;
+	self.grid[x][y].className = name;
 };
 
 //step
@@ -84,7 +96,7 @@ snake.prototype.step = function(self) {
 	var self = this,
 	body = self.body,
 	head = body[0],
-	foot = body.pop(),
+	foot = body[self.len - 1],
 	state = self.state,
 	grid = self.grid,
 	hx = head[0],
@@ -102,18 +114,26 @@ snake.prototype.step = function(self) {
 		hy === 0 ? hy = row - 1: hy -= 1;
 		break;
 	case 39:
-		hx === column-1 ? hx = 0: hx += 1;
+		hx === column - 1 ? hx = 0: hx += 1;
 		break;
 	case 40:
-		hy === row-1 ? hy = 0: hy += 1;
+		hy === row - 1 ? hy = 0: hy += 1;
 		break;
 	}
 
-	state[fx][fy] = false;
-	grid[fx][fy].className = "";
+	//get food
+	if (state[hx][hy] === "food") {
+		self.len += 1;
+		self.addObj("food");
+	} else {
+		state[fx][fy] = false;
+		grid[fx][fy].className = "";
+		body.pop();
+	}
+
 	body.unshift([hx, hy]);
 	state[hx][hy] = true;
-	grid[hx][hy].className = "cover";
+	grid[hx][hy].className = "snake";
 };
 
 //random
@@ -130,6 +150,10 @@ snake.prototype.random = function(sx, sy, ex, ey) {
 
 	x = Math.floor(Math.random() * (ex - sx)) + sx;
 	y = Math.floor(Math.random() * (ey - sy)) + sy;
+
+	if (self.state[x][y]) {
+		return self.random(sx, sy, ex, ey);
+	}
 
 	temp[0] = x;
 	temp[1] = y;
