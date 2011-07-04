@@ -10,7 +10,10 @@ img, button {background:none;border:0 none;vertical-align:middle;}
 ol,ul {list-style:none;}
 table,th,td,fieldset,legend {font-weight:400;border:0 none;border-collapse:collapse}
 
-#wrap {margin:0 auto;}
-    #wrap td {width:20px;height:20px;border:1px solid #EEE;}
-    #wrap .snake {background-color:blue;}
-    #wrap .food {background-color:red;}
+.layout {width:400px;margin:20px auto;}
+
+#wrap td {width:20px;height:20px;border:1px solid #EEE;}
+#wrap .snake {background-color:blue;}
+#wrap .food {background-color:red;}
+
+#msg {margin-top:10px;}

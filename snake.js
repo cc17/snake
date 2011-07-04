@@ -2,6 +2,7 @@ function snake(row, column, len) {
 	this.row = row;
 	this.column = column;
 	this.len = len;
+	this.score = 0;
 	this.init(this.row, this.column, this.len);
 };
 
@@ -11,6 +12,7 @@ snake.prototype.init = function(row, column, len) {
 
 	self.initGrid(row, column);
 	self.initSnake(column, len);
+    self.initScore();
 	self.addObj("food");
 	self.start();
 };
@@ -123,6 +125,7 @@ snake.prototype.step = function(self) {
 
 	//get food
 	if (state[hx][hy] === "food") {
+        self.changeScore(10);
 		self.len += 1;
 		self.addObj("food");
 	} else {
@@ -134,6 +137,23 @@ snake.prototype.step = function(self) {
 	body.unshift([hx, hy]);
 	state[hx][hy] = true;
 	grid[hx][hy].className = "snake";
+};
+
+//initScore
+snake.prototype.initScore = function() {
+	var self = this;
+
+	self.score = 0;
+	self.scoreObj = document.getElementById("score");
+	self.scoreObj.innerHTML = self.score;
+};
+
+//changeScore
+snake.prototype.changeScore = function(val) {
+	var self = this;
+        self.score = self.score + val;
+
+	self.scoreObj.innerHTML = self.score;
 };
 
 //random
