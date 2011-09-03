@@ -1,4 +1,4 @@
-function snake(row, column, len) {
+function Snake(row, column, len) {
 	this.row = row;
 	this.column = column;
 	this.len = len;
@@ -7,7 +7,7 @@ function snake(row, column, len) {
 	this.init();
 };
 
-snake.prototype = {
+Snake.prototype = {
 
 	//init
 	init: function(row, column) {
@@ -204,4 +204,4 @@ snake.prototype = {
 	}
 }
 
-new snake(20, 20, 3);
+new Snake(20, 20, 3);
