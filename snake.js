@@ -1,28 +1,26 @@
 // Model
-var Snake = Backbone.Model.extend({
+var Box = Backbone.Model.extend({
+
+    state: false
     
 });
 
 
 // Collection
-var Snakes = Backbone.Collection.extend({
-
-    model: Snake,
+var Boxs = Backbone.Collection.extend({
     
-    initialize: function() {
-        this.initGrid();
-    },
+    model: Box,
     
-    initGrid: function() {
-        
-    }
-
+    x: 10,
+    
+    y: 10
+    
 });
 
-var snakes = new Snakes;
+var boxs = new Boxs;
 
 // View
-var SnakeView = Backbone.View.extend({
+var BoxView = Backbone.View.extend({
     
     tagName: "td", 
 
@@ -31,24 +29,40 @@ var SnakeView = Backbone.View.extend({
     },
 
     render: function() {
-        $(this.el).addClass("snake");
         return this;
     }
 
 });
 
-var SnakesView = Backbone.View.extend({
+var BoxsView = Backbone.View.extend({
+
+    el: "#wrap",
     
-    model: snakes,
+    template: "{{#boxArray}}{{el}}{{/boxArray}}",
+    
+    boxArray:[],
     
     initialize: function() {
-        $(this.model).bind("add", this.initGrid);
+        boxs.bind("add", this.addBox, this);
+        this.initGrid();
     },
     
     initGrid: function() {
+
+        for (i = boxs.x; i--;) {
+            for (j = boxs.y; j--;) {
+                boxs.add({id: i + "-" + j});
+            }
+        }
+
+        $(this.el).append(Mustache.render(this.template, {"boxArray": this.boxArray}));
         
+    },
+    
+    addBox: function(box) {
+        this.boxArray.push(new BoxView({model: box}));
     }
     
 });
 
-new SnakeView;
+new BoxsView;
