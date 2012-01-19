@@ -1,68 +1,73 @@
 // Model
 var Box = Backbone.Model.extend({
 
-    state: false
-    
-});
+	defaults: {
+		state: false
+	}
 
+});
 
 // Collection
 var Boxs = Backbone.Collection.extend({
-    
-    model: Box,
-    
-    x: 10,
-    
-    y: 10
-    
+
+	model: Box,
+	x: 20,
+	y: 20
+
 });
 
 var boxs = new Boxs;
 
 // View
 var BoxView = Backbone.View.extend({
-    
-    tagName: "td", 
 
-    initialize: function() {
-        $(this.model).bind("change", this.render);
-    },
+	tagName: "td",
 
-    render: function() {
-        return this;
-    }
+	initialize: function() {
+		this.model.bind("change:state", this.render, this);
+	},
+
+	render: function() {
+		$(this.el).addClass("snake");
+		return this;
+	}
 
 });
 
 var BoxsView = Backbone.View.extend({
 
-    el: "#wrap",
-    
-    template: "{{#boxArray}}{{el}}{{/boxArray}}",
-    
-    boxArray:[],
-    
-    initialize: function() {
-        boxs.bind("add", this.addBox, this);
-        this.initGrid();
-    },
-    
-    initGrid: function() {
+	el: "#wrap",
 
-        for (i = boxs.x; i--;) {
-            for (j = boxs.y; j--;) {
-                boxs.add({id: i + "-" + j});
-            }
-        }
+	initialize: function() {
+		this.initGrid();
+	},
 
-        $(this.el).append(Mustache.render(this.template, {"boxArray": this.boxArray}));
-        
-    },
-    
-    addBox: function(box) {
-        this.boxArray.push(new BoxView({model: box}));
-    }
-    
+	initGrid: function() {
+
+		for (i = boxs.x; i--;) {
+			var tr = document.createElement("tr");
+
+			for (j = boxs.y; j--;) {
+				var modelID = i + "-" + j;
+
+				// add box model
+				boxs.add({
+					id: modelID
+				});
+
+				// add box view
+				var view = new BoxView({
+					model: boxs.get(modelID)
+				});
+
+				tr.appendChild(view.el);
+			}
+
+			$(this.el).append(tr);
+		}
+
+	}
 });
 
 new BoxsView;
+
