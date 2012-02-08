@@ -1,70 +1,112 @@
 // Model
 var Box = Backbone.Model.extend({
 
-    defaults: {
-        state: false
-    }
+	defaults: {
+		snake: false,
+        food: false
+	}
 
 });
 
 // Collection
 var Boxs = Backbone.Collection.extend({
 
-    model: Box,
-    x: 20,
-    y: 20
+	model: Box,
+	x: 20,
+	y: 20,
+	l: 5
 
 });
 
-var boxs = new Boxs;
+var BOXS = new Boxs;
 
 // View
 var BoxView = Backbone.View.extend({
 
-    tagName: "td",
+	tagName: "td",
 
-    initialize: function() {
-        this.model.bind("change:state", this.render, this);
-    },
+	initialize: function() {
+		this.model.bind("change:snake", this.render, this);
+	},
 
-    render: function() {
-        $(this.el).addClass("snake");
-        return this;
-    }
+	render: function() {
+		$(this.el).addClass("snake");
+		return this;
+	}
 
 });
 
 var BoxsView = Backbone.View.extend({
 
-    el: "#wrap",
+	el: "#wrap",
 
-    initialize: function() {
-        this.initGrid();
+	initialize: function() {
+		this.render();
+        this.initSnake();
+	},
+
+	render: function() {
+
+		for (i = BOXS.y; i--;) {
+			var tr = $("<tr></tr>");
+
+			for (j = BOXS.x; j--;) {
+				var id = j + "-" + i;
+
+				BOXS.add({
+					"id": id 
+				});
+
+				var view = new BoxView({
+					"model": BOXS.get(id)
+				});
+
+				tr.append(view.el);
+			}
+
+			$(this.el).append(tr);
+		}
+
+	},
+
+	initSnake: function() {
+        
+        var self = this,
+            p = self.random(BOXS.l - 1);
+        
+		for (i = 0; i < BOXS.l; i++) {
+            self.setSnake(p.x - i, p.y, true);
+		}
+
+	},
+
+	random: function(sx, sy, ex, ey) {
+		var self = this,
+		x,
+		y;
+
+		sx = sx || 0;
+		sy = sy || 0;
+		ex = ex || BOXS.x;
+		ey = ey || BOXS.y;
+
+		x = Math.floor(Math.random() * (ex - sx)) + sx;
+		y = Math.floor(Math.random() * (ey - sy)) + sy;
+
+		if (self.getSnake(x, y)) {
+			return self.random(sx, sy, ex, ey);
+		}
+
+		return {"x": x, "y": y};
+	},
+
+    getSnake: function(x, y) {
+        return BOXS.get(x + "-" + y).get("snake");         
     },
 
-    initGrid: function() {
-        for (i = boxs.x; i--;) {
-            var tr = document.createElement("tr");
-
-            for (j = boxs.y; j--;) {
-                var modelID = i + "-" + j;
-
-                // add box model
-                boxs.add({
-                    id: modelID
-                });
-
-                // add box view
-                var view = new BoxView({
-                    model: boxs.get(modelID)
-                });
-
-                tr.appendChild(view.el);
-            }
-
-            $(this.el).append(tr);
-        }
-    }
+	setSnake: function(x, y, val) {
+		BOXS.get(x + "-" + y).set({"snake": val});
+	}
 
 });
 
