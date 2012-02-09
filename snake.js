@@ -41,15 +41,13 @@
 		},
 
 		render: function() {
+            var state = this.model.get("state");
 
-			switch (this.model.get("state")) {
-			case true:
-				$(this.el).addClass("snake");
-				break;
-			case false:
-				$(this.el).removeClass("snake");
-				break;
-			}
+            if (state !== false) {
+                this.el.className = state;
+            } else {
+                this.el.className = "";
+            }
 
 			return this;
 		}
@@ -86,31 +84,38 @@
 				$(this.el).append(tr);
 			}
 
-			this.initSnake();
-			this.move();
+			this.addSnake();
+            this.addFood();
 
             return this;
 
 		},
 
-		initSnake: function() {
-			var self = this,
-			p = self.random(SNAKES.l - 1);
+		addSnake: function() {
+			var p = this.random(SNAKES.l - 1);
 
 			for (i = 0; i < SNAKES.l; i++) {
-				self.setSnake(p.x + i, p.y, true);
+				this.setState(p.x + i, p.y, "snake");
 			}
+
+            this.move();
 		},
 
-		move: function(s) {
+        addFood: function() {
+            var p = this.random(); 
+
+            BOXS.get(p.x + "-" + p.y).set({state: "food"});
+        },
+
+		move: function(speed) {
 			var self = this;
 
-			(s) ? win.clearInterval(snakeMove) : s = SNAKES.s;
+			(speed) ? win.clearInterval(SNAKESMOVE) : speed = SNAKES.s;
 
-			snakeMove = win.setInterval(function() {
+			SNAKESMOVE = win.setInterval(function() {
 				self.step();
 			},
-			s);
+			speed);
 		},
 
 		step: function() {
@@ -123,10 +128,10 @@
 
 			switch (BOXS.k) {
 			case 37:
-				hx === 0 ? hx = column - 1: hx -= 1;
+				hx === 0 ? hx = BOXS.x - 1: hx -= 1;
 				break;
 			case 38:
-				hy === 0 ? hy = row - 1: hy -= 1;
+				hy === 0 ? hy = BOXS.y - 1: hy -= 1;
 				break;
 			case 39:
 				hx === BOXS.x - 1 ? hx = 0: hx += 1;
@@ -136,8 +141,23 @@
 				break;
 			}
 
-			this.setSnake(hx, hy, true);
-			this.setSnake(fx, fy, false);
+            switch (this.getState(hx, hy)) {
+			case "snake":
+                win.clearInterval(SNAKESMOVE);
+                alert("The game is over!");
+				break;
+			case "food":
+                this.setState(hx, hy, "snake")
+                this.addFood();
+				break;
+            case false:
+                this.setState(hx, hy, "snake");
+                this.setState(fx, fy, false);    
+				break;
+			
+			}
+
+			
 		},
 
 		random: function(sx, sy, ex, ey) {
@@ -152,7 +172,7 @@
 			x = Math.floor(Math.random() * (ex - sx));
 			y = Math.floor(Math.random() * (ey - sy));
 
-			if (self.getSnake(x, y)) {
+			if (self.getState(x, y) !== false) {
 				return self.random(sx, sy, ex, ey);
 			}
 
@@ -162,11 +182,11 @@
 			};
 		},
 
-		getSnake: function(x, y) {
+		getState: function(x, y) {
 			return BOXS.get(x + "-" + y).get("state");
 		},
 
-		setSnake: function(x, y, val) {
+		setState: function(x, y, val) {
 			BOXS.get(x + "-" + y).set({
 				state: val
 			});
@@ -185,21 +205,21 @@
 
 	ControlView = Backbone.View.extend({
 
-		el: $("body"),
+        el: $("body"),
 
         events: {
             "keydown": "setKeyCode"
         },
 
-		initialize: function() {
-			this.render();
-		},
+        initialize: function() {
+            this.render();
+        },
 
-		render: function() {
-			var boxsView = new BoxsView();
+        render: function() {
+            var boxsView = new BoxsView();
                 boxsEl = boxsView.make("table", {class: "wrap"}, boxsView.el);
             this.el.append(boxsEl);
-		},
+        },
 
         setKeyCode: function(e) {
 
