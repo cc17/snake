@@ -57,8 +57,8 @@
 	}),
 
 	BoxsView = Backbone.View.extend({
-
-		el: "#wrap",
+        
+        tagName: "tbody",
 
 		initialize: function() {
 			this.render();
@@ -88,6 +88,8 @@
 
 			this.initSnake();
 			this.move();
+
+            return this;
 
 		},
 
@@ -179,9 +181,40 @@
 			}
 		}
 
+	}),
+
+	ControlView = Backbone.View.extend({
+
+		el: $("body"),
+
+        events: {
+            "keydown": "setKeyCode"
+        },
+
+		initialize: function() {
+			this.render();
+		},
+
+		render: function() {
+			var boxsView = new BoxsView();
+                boxsEl = boxsView.make("table", {class: "wrap"}, boxsView.el);
+            this.el.append(boxsEl);
+		},
+
+        setKeyCode: function(e) {
+
+            key = e.which || e.keyCode;
+
+            if (Math.abs(BOXS.k - key) != 2 && key >= 37 && key <= 40) {
+                BOXS.k = key;
+            } else {
+                return false;
+            }
+        }
+
 	});
 
-	new BoxsView;
+	new ControlView;
 
 })(window)
 
