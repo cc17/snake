@@ -34,13 +34,13 @@
 	// View
 	var BoxView = Backbone.View.extend({
 
-		tagName: "td",
+        tagName: "td",
 
-		initialize: function() {
-			this.model.bind("change:state", this.render, this);
-		},
+        initialize: function() {
+            this.model.bind("change:state", this.render, this);
+        },
 
-		render: function() {
+        render: function() {
             var state = this.model.get("state");
 
             if (state !== false) {
@@ -49,8 +49,8 @@
                 this.el.className = "";
             }
 
-			return this;
-		}
+            return this;
+        }
 
 	}),
 
@@ -58,48 +58,48 @@
         
         tagName: "tbody",
 
-		initialize: function() {
-			this.render();
-		},
+        initialize: function() {
+            this.render();
+        },
 
-		render: function() {
+        render: function() {
 
-			for (i = 0; i < BOXS.y; i++) {
-				var tr = $("<tr></tr>");
+            for (i = 0; i < BOXS.y; i++) {
+                var tr = $("<tr></tr>");
 
-				for (j = 0; j < BOXS.x; j++) {
-					var mID = j + "-" + i;
+                for (j = 0; j < BOXS.x; j++) {
+                    var mID = j + "-" + i;
 
-					BOXS.add({
-						id: mID
-					});
+                    BOXS.add({
+                        id: mID
+                    });
 
-					var view = new BoxView({
-						model: BOXS.get(mID)
-					});
+                    var view = new BoxView({
+                        model: BOXS.get(mID)
+                    });
 
-					tr.append(view.el);
-				}
+                    tr.append(view.el);
+                }
 
-				$(this.el).append(tr);
-			}
+                $(this.el).append(tr);
+            }
 
-			this.addSnake();
+            this.addSnake();
             this.addFood();
 
             return this;
 
-		},
+        },
 
-		addSnake: function() {
-			var p = this.random(SNAKES.l - 1);
+        addSnake: function() {
+            var p = this.random(SNAKES.l - 1);
 
-			for (i = 0; i < SNAKES.l; i++) {
-				this.setState(p.x + i, p.y, "snake");
-			}
+            for (i = 0; i < SNAKES.l; i++) {
+                this.setState(p.x + i, p.y, "snake");
+            }
 
             this.move();
-		},
+        },
 
         addFood: function() {
             var p = this.random(); 
@@ -107,99 +107,99 @@
             BOXS.get(p.x + "-" + p.y).set({state: "food"});
         },
 
-		move: function(speed) {
-			var self = this;
+        move: function(speed) {
+            var self = this;
 
-			(speed) ? win.clearInterval(SNAKESMOVE) : speed = SNAKES.s;
+            (speed) ? win.clearInterval(SNAKESMOVE) : speed = SNAKES.s;
 
-			SNAKESMOVE = win.setInterval(function() {
-				self.step();
-			},
-			speed);
-		},
+            SNAKESMOVE = win.setInterval(function() {
+                self.step();
+            },
+            speed);
+        },
 
-		step: function() {
-			var l = SNAKES.length - 1,
-			m = SNAKES.models,
-			hx = m[l].get("x"),
-			hy = m[l].get("y"),
-			fx = m[0].get("x"),
-			fy = m[0].get("y");
+        step: function() {
+            var l = SNAKES.length - 1,
+            m = SNAKES.models,
+            hx = m[l].get("x"),
+            hy = m[l].get("y"),
+            fx = m[0].get("x"),
+            fy = m[0].get("y");
 
-			switch (BOXS.k) {
-			case 37:
-				hx === 0 ? hx = BOXS.x - 1: hx -= 1;
-				break;
-			case 38:
-				hy === 0 ? hy = BOXS.y - 1: hy -= 1;
-				break;
-			case 39:
-				hx === BOXS.x - 1 ? hx = 0: hx += 1;
-				break;
-			case 40:
-				hy === BOXS.y - 1 ? hy = 0: hy += 1;
-				break;
-			}
+            switch (BOXS.k) {
+            case 37:
+                hx === 0 ? hx = BOXS.x - 1: hx -= 1;
+                break;
+            case 38:
+                hy === 0 ? hy = BOXS.y - 1: hy -= 1;
+                break;
+            case 39:
+                hx === BOXS.x - 1 ? hx = 0: hx += 1;
+                break;
+            case 40:
+                hy === BOXS.y - 1 ? hy = 0: hy += 1;
+                break;
+            }
 
             switch (this.getState(hx, hy)) {
-			case "snake":
+            case "snake":
                 win.clearInterval(SNAKESMOVE);
                 alert("The game is over!");
-				break;
-			case "food":
+                break;
+            case "food":
                 this.setState(hx, hy, "snake")
                 this.addFood();
-				break;
+                break;
             case false:
                 this.setState(hx, hy, "snake");
                 this.setState(fx, fy, false);    
-				break;
-			
-			}
+                break;
+            
+            }
 
-			
-		},
+            
+        },
 
-		random: function(sx, sy, ex, ey) {
-			var self = this,
-			x, y;
+        random: function(sx, sy, ex, ey) {
+            var self = this,
+            x, y;
 
-			sx = sx || 0;
-			sy = sy || 0;
-			ex = ex || BOXS.x;
-			ey = ey || BOXS.y;
+            sx = sx || 0;
+            sy = sy || 0;
+            ex = ex || BOXS.x;
+            ey = ey || BOXS.y;
 
-			x = Math.floor(Math.random() * (ex - sx));
-			y = Math.floor(Math.random() * (ey - sy));
+            x = Math.floor(Math.random() * (ex - sx));
+            y = Math.floor(Math.random() * (ey - sy));
 
-			if (self.getState(x, y) !== false) {
-				return self.random(sx, sy, ex, ey);
-			}
+            if (self.getState(x, y) !== false) {
+                return self.random(sx, sy, ex, ey);
+            }
 
-			return {
-				"x": x,
-				"y": y
-			};
-		},
+            return {
+                "x": x,
+                "y": y
+            };
+        },
 
-		getState: function(x, y) {
-			return BOXS.get(x + "-" + y).get("state");
-		},
+        getState: function(x, y) {
+            return BOXS.get(x + "-" + y).get("state");
+        },
 
-		setState: function(x, y, val) {
-			BOXS.get(x + "-" + y).set({
-				state: val
-			});
+        setState: function(x, y, val) {
+            BOXS.get(x + "-" + y).set({
+                state: val
+            });
 
-			if (val) {
-				SNAKES.add({
-					"x": x,
-					"y": y
-				});
-			} else {
-				SNAKES.remove((SNAKES.models)[0]);
-			}
-		}
+            if (val) {
+                SNAKES.add({
+                    "x": x,
+                    "y": y
+                });
+            } else {
+                SNAKES.remove((SNAKES.models)[0]);
+            }
+        }
 
 	}),
 
