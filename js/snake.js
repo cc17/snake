@@ -267,7 +267,7 @@
             setKeyCode: function(e) {
                 key = e.which || e.keyCode;
 
-                if (Math.abs(STATE.get("key") - key) != 2 && key >= 37 && key <= 40) {
+                if (Math.abs(STATE.get("k") - key) != 2 && key >= 37 && key <= 40) {
                     STATE.set({"k": key});
                 } else {
                     return false;
