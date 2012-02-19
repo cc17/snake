@@ -48,234 +48,232 @@
 
     // View
     var StateView = Backbone.View.extend({
+            tagName: "ul",
 
-        tagName: "ul",
+            template: _.template("<li>len: {{l}}</li><li>speed: {{s}}</li>"),
 
-        template: _.template("<li>len: {{l}}</li><li>speed: {{s}}</li>"),
+            initialize: function() {
+                this.model.bind("change", this.render, this);
+                this.render();
+            },
 
-        initialize: function() {
-            this.model.bind("change", this.render, this);
-            this.render();
-        },
-
-        render: function() {
-            this.$el.html(this.template(STATE.toJSON())); 
-            return this;
-        }
-
-    }),
-
-    BoxView = Backbone.View.extend({
-        tagName: "td",
-
-        initialize: function() {
-            this.model.bind("change:type", this.render, this);
-        },
-
-        render: function() {
-            var type = this.model.get("type");
-
-            if (type !== false) {
-                this.el.className = type;
-            } else {
-                this.el.className = "";
+            render: function() {
+                this.$el.html(this.template(STATE.toJSON())); 
+                return this;
             }
+        }),
 
-            return this;
-        }
-    }),
+        BoxView = Backbone.View.extend({
+            tagName: "td",
 
-    BoxsView = Backbone.View.extend({
-        tagName: "tbody",
+            initialize: function() {
+                this.model.bind("change:type", this.render, this);
+            },
 
-        initialize: function() {
-            this.render();
-        },
+            render: function() {
+                var type = this.model.get("type");
 
-        render: function() {
-            for (i = 0; i < STATE.get("y"); i++) {
-                var tr = $("<tr></tr>");
-
-                for (j = 0; j < STATE.get("x"); j++) {
-                    var mID = j + "-" + i;
-
-                    BOXS.add({
-                        id: mID
-                    });
-
-                    var view = new BoxView({
-                        model: BOXS.get(mID)
-                    });
-
-                    tr.append(view.el);
+                if (type !== false) {
+                    this.el.className = type;
+                } else {
+                    this.el.className = "";
                 }
 
-                $(this.el).append(tr);
+                return this;
             }
+        }),
 
-            this.addSnake();
-            this.addFood();
+        BoxsView = Backbone.View.extend({
+            tagName: "tbody",
 
-            return this;
-        },
+            initialize: function() {
+                this.render();
+            },
 
-        addSnake: function() {
-            var p = this.random(STATE.get("l") - 1);
+            render: function() {
+                for (i = 0; i < STATE.get("y"); i++) {
+                    var tr = $("<tr></tr>");
 
-            for (i = 0; i < STATE.get("l"); i++) {
-                this.setType(p.x + i, p.y, "snake");
-            }
+                    for (j = 0; j < STATE.get("x"); j++) {
+                        var mID = j + "-" + i;
 
-            this.move();
-        },
+                        BOXS.add({
+                            id: mID
+                        });
 
-        addFood: function() {
-            var p = this.random();
+                        var view = new BoxView({
+                            model: BOXS.get(mID)
+                        });
 
-            BOXS.get(p.x + "-" + p.y).set({
-                type: "food"
-            });
-        },
+                        tr.append(view.el);
+                    }
 
-        move: function() {
-            var self = this;
+                    $(this.el).append(tr);
+                }
 
-            if (SNAKESMOVE !== undefined) {
-                win.clearInterval(SNAKESMOVE)
-            }
+                this.addSnake();
+                this.addFood();
 
-            SNAKESMOVE = win.setInterval(function() {
-                self.step();
-            }, STATE.get("s"));
-        },
+                return this;
+            },
 
-        step: function() {
-            var l = SNAKES.length - 1,
-                m = SNAKES.models,
-                hx = m[l].get("x"),
-                hy = m[l].get("y"),
-                fx = m[0].get("x"),
-                fy = m[0].get("y");
+            addSnake: function() {
+                var p = this.random(STATE.get("l") - 1);
 
-            switch (STATE.get("k")) {
-                case 37:
-                    hx === 0 ? hx = STATE.get("x") - 1: hx -= 1;
-                    break;
-                case 38:
-                    hy === 0 ? hy = STATE.get("y") - 1: hy -= 1;
-                    break;
-                case 39:
-                    hx === STATE.get("x") - 1 ? hx = 0: hx += 1;
-                    break;
-                case 40:
-                    hy === STATE.get("y") - 1 ? hy = 0: hy += 1;
-                    break;
-            }
+                for (i = 0; i < STATE.get("l"); i++) {
+                    this.setType(p.x + i, p.y, "snake");
+                }
 
-            switch (this.getType(hx, hy)) {
-                case "snake":
-                    win.clearInterval(SNAKESMOVE);
-                    alert("The game is over!");
-                    break;
-                case "food":
-                    this.setType(hx, hy, "snake");
-                    this.setState();
-                    this.addFood();
-                    break;
-                case false:
-                    this.setType(hx, hy, "snake");
-                    this.setType(fx, fy, false);
-                    break;
-            }
-        },
+                this.move();
+            },
 
-        random: function(sx, sy, ex, ey) {
-            var self = this,
-            x, y;
+            addFood: function() {
+                var p = this.random();
 
-            sx = sx || 0;
-            sy = sy || 0;
-            ex = ex || STATE.get("x");
-            ey = ey || STATE.get("y");
+                BOXS.get(p.x + "-" + p.y).set({
+                    type: "food"
+                });
+            },
 
-            x = Math.floor(Math.random() * (ex - sx));
-            y = Math.floor(Math.random() * (ey - sy));
+            move: function() {
+                var self = this;
 
-            if (self.getType(x, y) !== false) {
-                return self.random(sx, sy, ex, ey);
-            }
+                if (SNAKESMOVE !== undefined) {
+                    win.clearInterval(SNAKESMOVE)
+                }
 
-            return {
-                "x": x,
-                "y": y
-            };
-        },
+                SNAKESMOVE = win.setInterval(function() {
+                    self.step();
+                }, STATE.get("s"));
+            },
 
-        getType: function(x, y) {
-            return BOXS.get(x + "-" + y).get("type");
-        },
+            step: function() {
+                var l = SNAKES.length - 1,
+                    m = SNAKES.models,
+                    hx = m[l].get("x"),
+                    hy = m[l].get("y"),
+                    fx = m[0].get("x"),
+                    fy = m[0].get("y");
 
-        setType: function(x, y, val) {
-            BOXS.get(x + "-" + y).set({
-                type: val
-            });
+                switch (STATE.get("k")) {
+                    case 37:
+                        hx === 0 ? hx = STATE.get("x") - 1: hx -= 1;
+                        break;
+                    case 38:
+                        hy === 0 ? hy = STATE.get("y") - 1: hy -= 1;
+                        break;
+                    case 39:
+                        hx === STATE.get("x") - 1 ? hx = 0: hx += 1;
+                        break;
+                    case 40:
+                        hy === STATE.get("y") - 1 ? hy = 0: hy += 1;
+                        break;
+                }
 
-            if (val) {
-                SNAKES.add({
+                switch (this.getType(hx, hy)) {
+                    case "snake":
+                        win.clearInterval(SNAKESMOVE);
+                        alert("The game is over!");
+                        break;
+                    case "food":
+                        this.setType(hx, hy, "snake");
+                        this.setState();
+                        this.addFood();
+                        break;
+                    case false:
+                        this.setType(hx, hy, "snake");
+                        this.setType(fx, fy, false);
+                        break;
+                }
+            },
+
+            random: function(sx, sy, ex, ey) {
+                var self = this,
+                x, y;
+
+                sx = sx || 0;
+                sy = sy || 0;
+                ex = ex || STATE.get("x");
+                ey = ey || STATE.get("y");
+
+                x = Math.floor(Math.random() * (ex - sx));
+                y = Math.floor(Math.random() * (ey - sy));
+
+                if (self.getType(x, y) !== false) {
+                    return self.random(sx, sy, ex, ey);
+                }
+
+                return {
                     "x": x,
                     "y": y
+                };
+            },
+
+            getType: function(x, y) {
+                return BOXS.get(x + "-" + y).get("type");
+            },
+
+            setType: function(x, y, val) {
+                BOXS.get(x + "-" + y).set({
+                    type: val
                 });
-            } else {
-                SNAKES.remove((SNAKES.models)[0]);
+
+                if (val) {
+                    SNAKES.add({
+                        "x": x,
+                        "y": y
+                    });
+                } else {
+                    SNAKES.remove((SNAKES.models)[0]);
+                }
+            },
+
+            setState: function() {
+                STATE.set({
+                    "l": SNAKES.length,
+                    "s": 500 - (SNAKES.length - 3) * 20
+                });
+
+                this.move();
             }
-        },
+        }),
 
-        setState: function() {
-            STATE.set({
-                "l": SNAKES.length,
-                "s": 500 - (SNAKES.length - 3) * 20
-            });
+        ControlView = Backbone.View.extend({
+            el: $("body"),
 
-            this.move();
-        }
-    }),
+            events: {
+                "keydown": "setKeyCode"
+            },
 
-    ControlView = Backbone.View.extend({
-        el: $("body"),
+            initialize: function() {
+                this.render();
+            },
 
-        events: {
-            "keydown": "setKeyCode"
-        },
+            render: function() {
+                var boxsView = new BoxsView(),
+                    boxsEl = boxsView.make("table", {
+                        "class": "wrap"
+                    }, boxsView.el);
 
-        initialize: function() {
-            this.render();
-        },
+                var stateView = new StateView({model: STATE}),
+                    stateEl = stateView.make("div", {
+                        "class": "state"
+                    }, stateView.el);
 
-        render: function() {
-            var boxsView = new BoxsView(),
-                boxsEl = boxsView.make("table", {
-                    "class": "wrap"
-                }, boxsView.el);
+                this.$el.append(boxsEl);
+                this.$el.append(stateEl);
+            },
 
-            var stateView = new StateView({model: STATE}),
-                stateEl = stateView.make("div", {
-                    "class": "state"
-                }, stateView.el);
+            setKeyCode: function(e) {
+                key = e.which || e.keyCode;
 
-            this.$el.append(boxsEl);
-            this.$el.append(stateEl);
-        },
-
-        setKeyCode: function(e) {
-            key = e.which || e.keyCode;
-
-            if (Math.abs(STATE.get("key") - key) != 2 && key >= 37 && key <= 40) {
-                STATE.set({"k": key});
-            } else {
-                return false;
+                if (Math.abs(STATE.get("key") - key) != 2 && key >= 37 && key <= 40) {
+                    STATE.set({"k": key});
+                } else {
+                    return false;
+                }
             }
-        }
-    });
+        });
 
     new ControlView;
 
